@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 const Registration = () => {
   const initialValues = {
-    userName: "",
+    username: "",
     email: "",
     password: "",
     confirmPass: "",
@@ -10,7 +10,7 @@ const Registration = () => {
   const [formValues, setFormValues] = useState(initialValues);
   const [formErrors, setFormErrors] = useState({});
   const [isSubmit, setIsSubmit] = useState(false);
-  const [isReset, setIsReset] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,26 +23,42 @@ const Registration = () => {
     setIsSubmit(true);
   };
 
+  const reg = async () => {
+    if (Object.keys(formErrors).length === 0 && isSubmit) {
+      const { email, username, password } = formValues;
+      const payload = { email, username, password };
+
+      try {
+        const response = await fetch("https://mytaskz.onrender.com/signup", {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        });
+
+        if (response.status === 201) {
+          handleReset();
+          setRegistrationSuccess(true);
+        } else {
+          console.error("Registraton failed with status:", response.status);
+        }
+      } catch (error) {
+        console.error("Error during registration:", error);
+      }
+      const data = await response.json();
+    }
+  };
+
   const handleReset = (e) => {
     e.preventDefault();
     setFormValues(initialValues);
     setFormErrors({});
     setIsSubmit(false);
+    setRegistrationSuccess(false);
   };
 
-  const reg = async () => {
-    if (isSubmit) {
-      const response = await fetch("https://mytaskz.onrender.com/sign", {
-        method: "POST",
-        body: JSON.stringify(formValues),
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
-      const data = await response.json();
-    }
-  };
   useEffect(() => {
     console.log(formErrors);
     if (Object.keys(formErrors).length === 0 && isSubmit) {
@@ -52,8 +68,8 @@ const Registration = () => {
   const validate = (values) => {
     const errors = {};
     const regex = /^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$/;
-    if (!values.userName) {
-      errors.userName = "Username is required";
+    if (!values.username) {
+      errors.username = "Username is required";
     }
     if (!values.email) {
       errors.email = "Email is required";
@@ -74,9 +90,13 @@ const Registration = () => {
     <div>
       <div className="flex justify-center mt-16">
         {/* <pre>{JSON.stringify(formValues, undefined, 2)}</pre> */}
+
         <form onSubmit={handleSubmit} onReset={handleReset}>
+          {registrationSuccess && (
+            <div className="success-message">Registration is successful!</div>
+          )}
           <div className="flex flex-col space-y-3">
-            <span className="flex justify-end">{formErrors.userName}</span>
+            <span className="flex justify-end">{formErrors.username}</span>
             <div className="flex  justify-between">
               <label htmlFor="" className=" mr-6">
                 Username:
@@ -84,8 +104,8 @@ const Registration = () => {
               <input
                 type="text"
                 className=" focus:outline-none rounded-xl text-black h-6 w-[30rem] pl-3"
-                name="userName"
-                value={formValues.userName}
+                name="username"
+                value={formValues.username}
                 onChange={handleChange}
               />
             </div>
