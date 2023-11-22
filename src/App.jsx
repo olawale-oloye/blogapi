@@ -4,7 +4,7 @@ import "./App.css";
 import NavBar from "./components/navBar/NavBar";
 import Registration from "./pages/registration/Registration";
 import Login from "./pages/login/Login";
-import About from "./pages/About/About";
+import About from "./pages/about/About";
 import BlogContent from "./pages/blogContent/BlogContent";
 
 function App() {
